@@ -55,9 +55,9 @@ app.prepare()
 					name: faker.name.findName(),
 					birthdate: faker.date.past(15, date2K),
 					color: _.sample([
-						'red', 'dark-red', 'orange', 'blue', 'green', 'purple', 'crimson', 'deep-pink',
-						'medium-violet-red', 'dark-orange', 'brown', 'golden-rod', 'dark-khaki', 'saddle-brown',
-						'olive', 'sea-green', 'teal', 'navy', 'magenta', 'indigo', 'slate-blue', 'dark-slate-gray'
+						'red', 'darkred', 'orange', 'blue', 'green', 'purple', 'crimson', 'deeppink',
+						'mediumvioletred', 'darkorange', 'brown', 'goldenrod', 'darkkhaki', 'saddlebrown',
+						'olive', 'seagreen', 'teal', 'navy', 'magenta', 'indigo', 'slateblue', 'darkslategray'
 					]),
 					createdBy: userid
 				});
