@@ -43,6 +43,19 @@ app.prepare()
 		server.use(bodyParser.json());
 		server.use(bodyParser.urlencoded({ extended: true }));
 
+		server.get('/api/users', (req, res) => {
+			return res.json({ status: 'success', count: __allUsers__.length, users: __allUsers__ });
+		});
+
+		server.get('/api/birthdays', (req, res) => {
+			const userBirthdays = __allUsers__.map(data => _.omit(data, ['createdAt']));
+			const otherBirthdays = __allBirthdays__.map(data => _.omit(data, ['createdBy']));
+
+			const birthdays = [ ...userBirthdays, ...otherBirthdays ];
+
+			return res.json({ status: 'success', count: birthdays.length, birthdays });
+		});
+
 		server.post('/api/users', (req, res) => {
 			const { name = null } = req.query;
 			const regex = /^[a-z]{2,}\s+[a-z]{2,}$/i;
