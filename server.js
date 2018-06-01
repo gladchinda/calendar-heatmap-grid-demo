@@ -33,11 +33,43 @@ app.prepare()
 		let __allUsers__ = [];
 		let __allBirthdays__ = [];
 
+		const __allColors__ = [
+			'red', 'darkred', 'orange', 'blue', 'green', 'purple', 'crimson', 'deeppink',
+			'mediumvioletred', 'darkorange', 'brown', 'goldenrod', 'darkkhaki', 'saddlebrown',
+			'olive', 'seagreen', 'teal', 'navy', 'magenta', 'indigo', 'slateblue', 'darkslategray'
+		];
+
 		server.use(logger('dev'));
 		server.use(bodyParser.json());
 		server.use(bodyParser.urlencoded({ extended: true }));
 
-		server.post('/api/:userid/manage/birthdays', (req, res) => {
+		server.post('/api/users', (req, res) => {
+			const { name = null } = req.query;
+			const regex = /^[a-z]{2,}\s+[a-z]{2,}$/i;
+			const date2K = moment('2000-01-01').toDate();
+
+			if (!( name && _.isString(name) && regex.test(name) )) {
+				return res.status(422).json({
+					status: 'failed',
+					message: 'Invalid name.'
+				});
+			}
+
+			const user = {
+				id: uuid.v4(),
+				name,
+				birthdate: faker.date.past(15, date2K),
+				color: _.sample(__allColors__),
+				createdAt: moment().unix()
+			};
+
+			__allUsers__ = [ ...__allUsers__, user ];
+			// trigger pusher notification
+
+			return res.json({ status: 'success', user });
+		});
+
+		server.post('/api/users/:userid/birthdays', (req, res) => {
 			const { count = 1 } = req.query;
 			const { userid } = req.params;
 
@@ -54,11 +86,7 @@ app.prepare()
 					id: uuid.v4(),
 					name: faker.name.findName(),
 					birthdate: faker.date.past(15, date2K),
-					color: _.sample([
-						'red', 'darkred', 'orange', 'blue', 'green', 'purple', 'crimson', 'deeppink',
-						'mediumvioletred', 'darkorange', 'brown', 'goldenrod', 'darkkhaki', 'saddlebrown',
-						'olive', 'seagreen', 'teal', 'navy', 'magenta', 'indigo', 'slateblue', 'darkslategray'
-					]),
+					color: _.sample(__allColors__),
 					createdBy: userid
 				});
 			}
