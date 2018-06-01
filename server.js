@@ -49,10 +49,7 @@ app.prepare()
 			const date2K = moment('2000-01-01').toDate();
 
 			if (!( name && _.isString(name) && regex.test(name) )) {
-				return res.status(422).json({
-					status: 'failed',
-					message: 'Invalid name.'
-				});
+				return res.status(422).json({ status: 'failed', message: 'Invalid name.' });
 			}
 
 			const user = {
@@ -67,6 +64,21 @@ app.prepare()
 			// trigger pusher notification
 
 			return res.json({ status: 'success', user });
+		});
+
+		server.delete('/api/users/:userid', (req, res) => {
+			const { userid } = req.params;
+			const user = __allUsers__.find(({ id }) => id === userid);
+
+			if (!user) {
+				return res.status(404).json({ status: 'failed', message: 'User not found.' });
+			}
+
+			__allUsers__ = __allUsers__.filter(({ id }) => id !== userid);
+			__allBirthdays__ = __allBirthdays__.filter(({ createdBy }) => createdBy !== userid);
+			// trigger pusher notifications
+
+			return res.json({ status: 'success', message: 'User destroyed successfully.', user });
 		});
 
 		server.post('/api/users/:userid/birthdays', (req, res) => {
