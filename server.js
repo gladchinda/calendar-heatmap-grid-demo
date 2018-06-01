@@ -1,5 +1,9 @@
+const _ = require('lodash');
 const next = require('next');
+const uuid = require('uuid');
+const faker = require('faker');
 const logger = require('morgan');
+const moment = require('moment');
 const Pusher = require('pusher');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -26,9 +30,44 @@ app.prepare()
 
 		const server = express();
 
+		let __allUsers__ = [];
+		let __allBirthdays__ = [];
+
 		server.use(logger('dev'));
 		server.use(bodyParser.json());
 		server.use(bodyParser.urlencoded({ extended: true }));
+
+		server.post('/api/:userid/manage/birthdays', (req, res) => {
+			const { count = 1 } = req.query;
+			const { userid } = req.params;
+
+			const birthdays = [];
+			const countNumber = +count;
+			const date2K = moment('2000-01-01').toDate();
+
+			const length = countNumber && _.isNumber(countNumber)
+				? Math.max(1, Math.min(100, countNumber))
+				: 1;
+
+			while (length > birthdays.length) {
+				birthdays.push({
+					id: uuid.v4(),
+					name: faker.name.findName(),
+					birthdate: faker.date.past(15, date2K),
+					color: _.sample([
+						'red', 'dark-red', 'orange', 'blue', 'green', 'purple', 'crimson', 'deep-pink',
+						'medium-violet-red', 'dark-orange', 'brown', 'golden-rod', 'dark-khaki', 'saddle-brown',
+						'olive', 'sea-green', 'teal', 'navy', 'magenta', 'indigo', 'slate-blue', 'dark-slate-gray'
+					]),
+					createdBy: userid
+				});
+			}
+
+			__allBirthdays__ = [ ...__allBirthdays__, ...birthdays ];
+			// trigger pusher notification
+
+			return res.json({ status: 'success', count: length, birthdays });
+		});
 
 		server.get('*', (req, res) => {
 			return handler(req, res);
