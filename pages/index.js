@@ -1,3 +1,4 @@
+import '../styles/_global.scss';
 import React from 'react';
 
 export default () => {
